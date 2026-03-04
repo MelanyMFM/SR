@@ -5,11 +5,14 @@ import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import com.example.scorereader.domain.PageCommand
 import com.example.scorereader.domain.PageController
@@ -18,6 +21,10 @@ import java.io.File
 @Composable
 fun ReaderScreen() {
     val context = LocalContext.current
+
+    var zoom by remember { mutableStateOf(1f) }
+    val minZoom = 1f
+    val maxZoom = 3f
 
     var pageCount by remember { mutableStateOf(0) }
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
@@ -70,12 +77,21 @@ fun ReaderScreen() {
         Image(
             bitmap = it.asImageBitmap(),
             contentDescription = "Página PDF",
+            contentScale = ContentScale.Fit,
             modifier = Modifier
                 .fillMaxSize()
+                .graphicsLayer {
+                    scaleX = zoom
+                    scaleY = zoom
+                }
+                .pointerInput(Unit) {
+                    detectTransformGestures { _, _, zoomChange, _ ->
+                        zoom = (zoom * zoomChange).coerceIn(minZoom, maxZoom)
+                    }
+                }
                 .pointerInput(Unit) {
                     detectTapGestures { tapOffset ->
                         val screenWidth = size.width
-
                         if (tapOffset.x > screenWidth / 2) {
                             pageController.handle(PageCommand.NEXT)
                         } else {
