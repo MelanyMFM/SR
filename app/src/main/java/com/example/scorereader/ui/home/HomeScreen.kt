@@ -1,4 +1,4 @@
-package com.example.scorereader
+package com.example.scorereader.ui.home
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
