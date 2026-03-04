@@ -11,15 +11,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import com.example.scorereader.domain.PageCommand
+import com.example.scorereader.domain.PageController
 import java.io.File
 
 @Composable
 fun ReaderScreen() {
     val context = LocalContext.current
 
-    var currentPage by remember { mutableStateOf(0) }
     var pageCount by remember { mutableStateOf(0) }
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var currentPage by remember { mutableStateOf(0) }
+    val pageController = remember {
+        PageController(
+            pageCountProvider = { pageCount },
+            onPageChanged = { newPage ->
+                currentPage = newPage
+            }
+        )
+    }
 
     val pdfFile = File(context.filesDir, "sample.pdf")
 
@@ -63,13 +73,15 @@ fun ReaderScreen() {
             modifier = Modifier
                 .fillMaxSize()
                 .pointerInput(Unit) {
-                    detectTapGestures(
-                        onTap = {
-                            if (currentPage + 1 < pageCount) {
-                                currentPage++
-                            }
+                    detectTapGestures { tapOffset ->
+                        val screenWidth = size.width
+
+                        if (tapOffset.x > screenWidth / 2) {
+                            pageController.handle(PageCommand.NEXT)
+                        } else {
+                            pageController.handle(PageCommand.PREVIOUS)
                         }
-                    )
+                    }
                 }
         )
     }
