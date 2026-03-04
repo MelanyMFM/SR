@@ -6,10 +6,12 @@ import java.io.File
 
 class ScoreRepository(private val context: Context) {
 
-    fun getAllScores(): List<ScoreFile> {
-        val filesDir = context.filesDir
+    private val fileManager = FileManager(context)
 
-        return filesDir
+    fun getAllScores(): List<ScoreFile> {
+        val scoresDir = fileManager.scoresDir()
+
+        return scoresDir
             .listFiles { file ->
                 file.extension.lowercase() == "pdf"
             }
