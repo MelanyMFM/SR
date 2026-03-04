@@ -26,12 +26,13 @@ fun AppNavigation() {
         composable(
             route = "reader/{filePath}",
             arguments = listOf(
-                navArgument("filePath") {
-                    type = NavType.StringType
-                }
+                navArgument("filePath") { type = NavType.StringType }
             )
-        ) {
-            ReaderScreen()
+        ) { backStackEntry ->
+            val filePath = backStackEntry.arguments?.getString("filePath")
+            if (filePath != null) {
+                ReaderScreen(filePath = filePath)
+            }
         }
     }
 }
