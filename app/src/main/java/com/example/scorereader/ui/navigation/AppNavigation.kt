@@ -19,17 +19,20 @@ fun AppNavigation() {
     ) {
         composable("library") {
             LibraryScreen { score ->
-                navController.navigate("reader/${score.filePath}")
+                navController.currentBackStackEntry
+                    ?.savedStateHandle
+                    ?.set("selectedFilePath", score.filePath)
+
+                navController.navigate("reader")
             }
         }
 
-        composable(
-            route = "reader/{filePath}",
-            arguments = listOf(
-                navArgument("filePath") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val filePath = backStackEntry.arguments?.getString("filePath")
+        composable("reader") {
+            val filePath =
+                navController.previousBackStackEntry
+                    ?.savedStateHandle
+                    ?.get<String>("selectedFilePath")
+
             if (filePath != null) {
                 ReaderScreen(filePath = filePath)
             }
