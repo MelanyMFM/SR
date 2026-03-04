@@ -21,7 +21,7 @@ import com.example.scorereader.ui.reader.viewmodel.ReaderViewModel
 import java.io.File
 
 @Composable
-fun ReaderScreen() {
+fun ReaderScreen(filePath: String) {
     val context = LocalContext.current
 
     val readerViewModel: ReaderViewModel = viewModel()
@@ -42,17 +42,15 @@ fun ReaderScreen() {
 
     var twoPagesMode by remember { mutableStateOf(false) }
 
-    LaunchedEffect(currentPage) {
-        val assetManager = context.assets
-        val inputStream = assetManager.open("sample.pdf")
+    LaunchedEffect(filePath, currentPage) {
+        val file = File(filePath)
 
-        val tempFile = File(context.cacheDir, "temp.pdf")
-        tempFile.outputStream().use { output ->
-            inputStream.copyTo(output)
+        if (!file.exists()) {
+            return@LaunchedEffect
         }
 
         val fileDescriptor = ParcelFileDescriptor.open(
-            tempFile,
+            file,
             ParcelFileDescriptor.MODE_READ_ONLY
         )
 
