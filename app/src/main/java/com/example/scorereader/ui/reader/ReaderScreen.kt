@@ -3,6 +3,7 @@ package com.example.scorereader.ui.reader
 import android.graphics.Bitmap
 import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
@@ -22,7 +23,11 @@ import java.io.File
 fun ReaderScreen() {
     val context = LocalContext.current
 
-    var zoom by remember { mutableStateOf(1f) }
+    var zoomTarget by remember { mutableStateOf(1f) }
+    val zoom by animateFloatAsState(
+        targetValue = zoomTarget,
+        label = "zoomAnimation"
+    )
     val minZoom = 1f
     val maxZoom = 3f
 
@@ -86,18 +91,23 @@ fun ReaderScreen() {
                 }
                 .pointerInput(Unit) {
                     detectTransformGestures { _, _, zoomChange, _ ->
-                        zoom = (zoom * zoomChange).coerceIn(minZoom, maxZoom)
+                        zoomTarget = (zoomTarget * zoomChange).coerceIn(minZoom, maxZoom)
                     }
                 }
                 .pointerInput(Unit) {
-                    detectTapGestures { tapOffset ->
-                        val screenWidth = size.width
-                        if (tapOffset.x > screenWidth / 2) {
-                            pageController.handle(PageCommand.NEXT)
-                        } else {
-                            pageController.handle(PageCommand.PREVIOUS)
+                    detectTapGestures(
+                        onDoubleTap = {
+                            zoomTarget = 1f  // reset
+                        },
+                        onTap = { tapOffset ->
+                            val screenWidth = size.width
+                            if (tapOffset.x > screenWidth / 2) {
+                                pageController.handle(PageCommand.NEXT)
+                            } else {
+                                pageController.handle(PageCommand.PREVIOUS)
+                            }
                         }
-                    }
+                    )
                 }
         )
     }
