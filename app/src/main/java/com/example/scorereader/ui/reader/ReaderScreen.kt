@@ -39,7 +39,7 @@ fun ReaderScreen(filePath: String) {
     }
     var isAnnotationMode by remember { mutableStateOf(false) }
     var currentPath by remember { mutableStateOf(Path()) }
-    val paths = remember { mutableStateListOf<Path>() }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -58,6 +58,8 @@ fun ReaderScreen(filePath: String) {
         val readerViewModel: ReaderViewModel = viewModel()
         val currentPage by readerViewModel.currentPage.collectAsState()
         val pageCount by readerViewModel.pageCount.collectAsState()
+        val pagePaths = remember { mutableStateMapOf<Int, MutableList<Path>>() }
+        val pathsForPage = pagePaths.getOrPut(currentPage) { mutableListOf() }
 
         var zoomTarget by remember { mutableStateOf(1f) }
         val zoom by animateFloatAsState(
@@ -72,6 +74,7 @@ fun ReaderScreen(filePath: String) {
         var twoPagesMode by remember { mutableStateOf(false) }
 
         LaunchedEffect(filePath, currentPage) {
+            bitmap = null
             val file = File(filePath)
 
             if (!file.exists()) {
@@ -169,7 +172,7 @@ fun ReaderScreen(filePath: String) {
                     modifier = Modifier.fillMaxSize()
                 ) {
 
-                    paths.forEach { path ->
+                    pathsForPage.forEach { path ->
                         drawPath(
                             path = path,
                             color = Color.Red,
@@ -209,7 +212,7 @@ fun ReaderScreen(filePath: String) {
                                     },
 
                                     onDragEnd = {
-                                        paths.add(currentPath)
+                                        pathsForPage.add(currentPath)
                                         currentPath = Path()
                                     }
                                 )
