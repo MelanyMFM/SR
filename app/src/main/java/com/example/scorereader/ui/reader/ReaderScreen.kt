@@ -15,13 +15,18 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import com.example.scorereader.domain.PageCommand
-import com.example.scorereader.domain.PageController
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.collectAsState
+import com.example.scorereader.ui.reader.viewmodel.ReaderViewModel
 import java.io.File
 
 @Composable
 fun ReaderScreen() {
     val context = LocalContext.current
+
+    val readerViewModel: ReaderViewModel = viewModel()
+    val currentPage by readerViewModel.currentPage.collectAsState()
+    val pageCount by readerViewModel.pageCount.collectAsState()
 
     var zoomTarget by remember { mutableStateOf(1f) }
     val zoom by animateFloatAsState(
@@ -31,19 +36,11 @@ fun ReaderScreen() {
     val minZoom = 1f
     val maxZoom = 3f
 
-    var pageCount by remember { mutableStateOf(0) }
-    var bitmap by remember { mutableStateOf<Bitmap?>(null) }
-    var currentPage by remember { mutableStateOf(0) }
-    val pageController = remember {
-        PageController(
-            pageCountProvider = { pageCount },
-            onPageChanged = { newPage ->
-                currentPage = newPage
-            }
-        )
-    }
 
-    val pdfFile = File(context.filesDir, "sample.pdf")
+    var bitmap by remember { mutableStateOf<Bitmap?>(null) }
+
+
+    var twoPagesMode by remember { mutableStateOf(false) }
 
     LaunchedEffect(currentPage) {
         val assetManager = context.assets
@@ -60,7 +57,7 @@ fun ReaderScreen() {
         )
 
         val renderer = PdfRenderer(fileDescriptor)
-        pageCount = renderer.pageCount
+        readerViewModel.setPageCount(renderer.pageCount)
 
         val page = renderer.openPage(currentPage.coerceIn(0, pageCount - 1))
 
@@ -102,9 +99,9 @@ fun ReaderScreen() {
                         onTap = { tapOffset ->
                             val screenWidth = size.width
                             if (tapOffset.x > screenWidth / 2) {
-                                pageController.handle(PageCommand.NEXT)
+                                readerViewModel.nextPage()
                             } else {
-                                pageController.handle(PageCommand.PREVIOUS)
+                                readerViewModel.previousPage()
                             }
                         }
                     )
