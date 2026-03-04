@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.example.scorereader.ui.home.HomeScreen
+import com.example.scorereader.ui.navigation.AppNavigation
 import com.example.scorereader.ui.reader.ReaderScreen
 import com.example.scorereader.ui.theme.ScoreReaderTheme
 
@@ -14,7 +15,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ScoreReaderTheme {
-                ReaderScreen()
+                AppNavigation()
             }
         }
     }
