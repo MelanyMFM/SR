@@ -57,9 +57,18 @@ fun ReaderScreen() {
         )
 
         val renderer = PdfRenderer(fileDescriptor)
-        readerViewModel.setPageCount(renderer.pageCount)
+        val totalPages = renderer.pageCount
 
-        val page = renderer.openPage(currentPage.coerceIn(0, pageCount - 1))
+        readerViewModel.setPageCount(totalPages)
+
+        if (totalPages == 0) {
+            renderer.close()
+            fileDescriptor.close()
+            return@LaunchedEffect
+        }
+
+        val safePageIndex = currentPage.coerceIn(0, totalPages - 1)
+        val page = renderer.openPage(safePageIndex)
 
         val bmp = Bitmap.createBitmap(
             page.width,
