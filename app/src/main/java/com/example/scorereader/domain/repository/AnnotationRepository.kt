@@ -9,10 +9,11 @@ import java.io.File
 class AnnotationRepository(
     private val context: Context
 ) {
+
     private val gson = Gson()
 
-    fun loadAnnotations(documentId: String): List<Annotation> {
-        val file = getAnnotationFile(documentId)
+    fun loadAnnotations(pdfName: String, page: Int): List<Annotation> {
+        val file = getPageFile(pdfName, page)
         if (!file.exists()) return emptyList()
 
         val json = file.readText()
@@ -20,15 +21,19 @@ class AnnotationRepository(
         return gson.fromJson(json, type)
     }
 
-    fun saveAnnotations(documentId: String, annotations: List<Annotation>) {
-        val file = getAnnotationFile(documentId)
+    fun saveAnnotations(pdfName: String, page: Int, annotations: List<Annotation>) {
+        val file = getPageFile(pdfName, page)
         val json = gson.toJson(annotations)
         file.writeText(json)
     }
 
-    private fun getAnnotationFile(documentId: String): File {
-        val dir = File(context.filesDir, "annotations")
-        if (!dir.exists()) dir.mkdirs()
-        return File(dir, "$documentId.json")
+    private fun getPageFile(pdfName: String, page: Int): File {
+        val dir = File(context.filesDir, "annotations/$pdfName")
+        if (!dir.exists()) {
+            dir.mkdirs()
+        }
+
+        return File(dir, "page_$page.json")
     }
+
 }
