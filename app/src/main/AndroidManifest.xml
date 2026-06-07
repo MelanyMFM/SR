@@ -1,34 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!--
-        CAMERA: necesario para ML Kit + CameraX.
-        Es un "dangerous permission" — el usuario debe aprobarlo en runtime.
-    -->
     <uses-permission android:name="android.permission.CAMERA" />
-
-    <!--
-        SYSTEM_ALERT_WINDOW: es el permiso de "dibujar sobre otras apps" (overlay).
-        En Android 6+ no se puede pedir en runtime normal — hay que llevar al usuario
-        a Settings especiales. Lo manejaremos en Fase 3.
-        Por ahora lo declaramos para que Play Store lo vea desde el inicio.
-    -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-
-    <!--
-        FOREGROUND_SERVICE: para el servicio que corre la cámara en background.
-        Sin esto, Android 8+ mataría el proceso cuando el usuario cambia de app.
-    -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
-
-    <!--
-        POST_NOTIFICATIONS: requerido en Android 13+ para mostrar la notificación
-        del foreground service (sin notificación visible, el servicio no puede correr).
-    -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-    <!-- Declaramos que usamos cámara pero no la requerimos para instalar -->
     <uses-feature
         android:name="android.hardware.camera.front"
         android:required="false" />
@@ -51,15 +29,23 @@
             </intent-filter>
         </activity>
 
-        <!--
-            El OverlayService va aquí en Fase 3.
-            Lo dejamos comentado para que sepas dónde irá:
-
         <service
             android:name=".service.OverlayService"
             android:foregroundServiceType="camera"
             android:exported="false" />
-        -->
+
+        <service
+            android:name=".service.ScoreTurnAccessibilityService"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
 
     </application>
 

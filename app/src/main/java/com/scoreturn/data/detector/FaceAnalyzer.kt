@@ -1,5 +1,6 @@
 package com.scoreturn.data.detector
 
+import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import com.google.mlkit.vision.common.InputImage
@@ -82,7 +83,7 @@ class FaceAnalyzer : ImageAnalysis.Analyzer {
 
     private fun handleFaces(faces: List<Face>) {
         val face = faces.firstOrNull()
-
+        Log.d("FaceAnalyzer", "Frame recibido — cara detectada: ${face != null}")
         if (face == null) {
             _eyeState.value = EyeState(null, null)
             return

@@ -8,4 +8,12 @@
         El permiso de "dibujar sobre otras apps" permite que el indicador flotante
         de ScoreTurn aparezca mientras lees partituras en IMSLP u otras apps.
     </string>
+    <string name="accessibility_service_description">
+        ScoreTurn usa accesibilidad para simular la tecla de siguiente página
+        cuando detecta un doble parpadeo. No lee ni transmite contenido de pantalla.
+    </string>
+    <string name="notification_channel_name">ScoreTurn activo</string>
+    <string name="notification_channel_description">Indica que ScoreTurn está detectando parpadeos</string>
+    <string name="notification_title">ScoreTurn activo</string>
+    <string name="notification_text">Parpadear dos veces para pasar la página</string>
 </resources>

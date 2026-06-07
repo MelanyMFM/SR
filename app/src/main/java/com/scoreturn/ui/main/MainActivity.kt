@@ -10,40 +10,34 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import com.scoreturn.service.ScoreTurnAccessibilityService
 import com.scoreturn.ui.theme.ScoreTurnTheme
 
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModels()
 
-    /*
-     * ActivityResultLauncher para el permiso de cámara.
-     * Esta es la forma moderna (recomendada por Google) de pedir permisos en runtime.
-     * Reemplaza al deprecated onRequestPermissionsResult.
-     */
     private val cameraPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         viewModel.updateCameraPermission(granted = isGranted)
     }
 
-    /*
-     * Para el overlay NO usamos RequestPermission — ese sistema no funciona para
-     * SYSTEM_ALERT_WINDOW. En su lugar abrimos la pantalla de Settings de Android
-     * y cuando el usuario regresa a nuestra app, verificamos en onResume.
-     */
     private val overlaySettingsLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) {
-        // El resultado no nos dice si se otorgó — hay que verificar manualmente
         viewModel.updateOverlayPermission(viewModel.checkOverlayPermission())
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Pedir permiso de notificaciones en Android 13+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 100)
+        }
 
         setContent {
             ScoreTurnTheme {
@@ -57,18 +51,28 @@ class MainActivity : ComponentActivity() {
                     permissions = permissions,
                     eyeState = eyeState,
                     lastGesture = lastGesture,
+                    isAccessibilityActive = ScoreTurnAccessibilityService.isActive(),
                     onRequestCameraPermission = {
                         cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                     },
                     onRequestOverlayPermission = {
-                        val intent = android.content.Intent(
-                            android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                            android.net.Uri.parse("package:$packageName")
+                        val intent = Intent(
+                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            Uri.parse("package:$packageName")
                         )
                         overlaySettingsLauncher.launch(intent)
                     },
                     onStartCamera = { lifecycleOwner ->
                         viewModel.startCameraIfReady(lifecycleOwner)
+                    },
+                    onStartService = { context ->
+                        viewModel.startOverlayService(context)
+                    },
+                    onStopService = { context ->
+                        viewModel.stopOverlayService(context)
+                    },
+                    onRequestAccessibility = { context ->
+                        context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
                     }
                 )
             }
@@ -77,8 +81,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Verificamos overlay cada vez que el usuario regresa a la app
-        // (puede haber cambiado en Settings sin que lo detectemos de otra forma)
         viewModel.updateOverlayPermission(viewModel.checkOverlayPermission())
     }
 }
