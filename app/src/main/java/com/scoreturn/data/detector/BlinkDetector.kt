@@ -7,7 +7,7 @@ import com.scoreturn.data.model.isBlinking
 import com.scoreturn.data.model.isOpen
 
 class BlinkDetector(
-    private val maxDobleBlinkWindowMs: Long = 1200L, // más tiempo entre parpadeos
+    private val maxDobleBlinkWindowMs: Long = 1100L, // más tiempo entre parpadeos
     private val cooldownMs: Long = 1500L
 ) {
 
