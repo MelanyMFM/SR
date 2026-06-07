@@ -1,4 +1,4 @@
-package com.example.scorereader
+package com.scoreturn
 
 import org.junit.Test
 

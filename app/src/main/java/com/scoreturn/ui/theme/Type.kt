@@ -1,4 +1,4 @@
-package com.example.scorereader.ui.theme
+package com.scoreturn.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

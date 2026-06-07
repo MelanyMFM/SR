@@ -1,3 +1,11 @@
 <resources>
-    <string name="app_name">ScoreReader</string>
+    <string name="app_name">ScoreTurn</string>
+    <string name="permission_camera_rationale">
+        ScoreTurn necesita acceso a la cámara frontal para detectar tus parpadeos.
+        Los frames se procesan localmente en tu dispositivo — ningún dato sale de él.
+    </string>
+    <string name="permission_overlay_rationale">
+        El permiso de "dibujar sobre otras apps" permite que el indicador flotante
+        de ScoreTurn aparezca mientras lees partituras en IMSLP u otras apps.
+    </string>
 </resources>

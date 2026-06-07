@@ -22,5 +22,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ScoreReader"
+rootProject.name = "ScoreTurn"
 include(":app")
+ 
