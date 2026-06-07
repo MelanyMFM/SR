@@ -49,20 +49,26 @@ class MainActivity : ComponentActivity() {
             ScoreTurnTheme {
                 val permissions by viewModel.permissions.collectAsState()
                 val statusMessage by viewModel.statusMessage.collectAsState()
+                val eyeState by viewModel.eyeState.collectAsState()
+                val lastGesture by viewModel.lastGesture.collectAsState()
 
                 MainScreen(
                     statusMessage = statusMessage,
                     permissions = permissions,
+                    eyeState = eyeState,
+                    lastGesture = lastGesture,
                     onRequestCameraPermission = {
                         cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                     },
                     onRequestOverlayPermission = {
-                        // Llevamos al usuario a la pantalla específica de permisos overlay
-                        val intent = Intent(
-                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                            Uri.parse("package:$packageName")
+                        val intent = android.content.Intent(
+                            android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            android.net.Uri.parse("package:$packageName")
                         )
                         overlaySettingsLauncher.launch(intent)
+                    },
+                    onStartCamera = { lifecycleOwner ->
+                        viewModel.startCameraIfReady(lifecycleOwner)
                     }
                 )
             }
